@@ -7,14 +7,6 @@ class GeetestLibResult
     @msg = '' # 备注信息，如异常信息等
   end
 
-  def setAll(status, data, msg)
-    @status = status
-    @data = data
-    unless msg.nil? || msg.empty?
-      @msg = "#{@msg}; #{msg}"
-    end
-  end
-
   def setStatus(status)
     @status = status
   end
@@ -33,7 +25,7 @@ class GeetestLibResult
 
   def setMsg(msg)
     unless msg.nil? || msg.empty?
-      @msg = "#{@msg}; #{msg}"
+      @msg = msg
     end
   end
 
@@ -41,8 +33,14 @@ class GeetestLibResult
     @msg
   end
 
+  def setAll(status, data, msg)
+    setStatus(status)
+    setData(data)
+    setMsg(msg)
+  end
+
   def to_s
-    "GeetestLibResult{status=#{@status}, data='#{@data}', msg='#{@msg}'}"
+    "GeetestLibResult{status=#{@status}, data=#{@data}, msg=#{@msg}}"
   end
 
 end

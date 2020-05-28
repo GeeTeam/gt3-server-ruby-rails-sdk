@@ -7,12 +7,12 @@ require_relative "geetest_lib_result"
 class GeetestLib
 
   IS_DEBUG = true # 调试开关，是否输出调试日志
-  VERSION = "ruby-rails:3.1.0".freeze
   API_URL = "http://api.geetest.com".freeze
   REGISTER_URL = "/register.php".freeze
   VALIDATE_URL = "/validate.php".freeze
   JSON_FORMAT = 1
   NEW_CAPTCHA = true
+  VERSION = "ruby-rails:3.1.0".freeze
   GEETEST_CHALLENGE = "geetest_challenge".freeze # 极验二次验证表单传参字段 chllenge
   GEETEST_VALIDATE = "geetest_validate".freeze # 极验二次验证表单传参字段 validate
   GEETEST_SECCODE = "geetest_seccode".freeze # 极验二次验证表单传参字段 seccode
@@ -47,7 +47,7 @@ class GeetestLib
     register_url = API_URL + REGISTER_URL
     uri = URI(register_url)
     uri.query = URI.encode_www_form(paramHash)
-    gtlog("requestRegister(): 一次验证向极验发送请求, url=#{ API_URL}, paramHash=#{paramHash}.")
+    gtlog("requestRegister(): 一次验证, 向极验发送请求, url=#{register_url}, params=#{paramHash}.")
     begin
       res = Net::HTTP.get_response(uri)
       if res.is_a?(Net::HTTPSuccess)
@@ -55,10 +55,11 @@ class GeetestLib
       else
         res_body = ""
       end
-      gtlog("requestRegister(): 一次验证请求正常, 返回码=#{res.code}, 返回body=#{res_body}.")
+      gtlog("requestRegister(): 一次验证, 与极验网络交互正常, 返回码=#{res.code}, 返回body=#{res_body}.")
       res_hash = JSON.parse(res_body)
       origin_challenge = res_hash["challenge"]
-    rescue
+    rescue => e
+      gtlog("requestRegister(): 一次验证, 请求异常，后续流程走failback模式, " + e.message)
       origin_challenge = ""
     end
     origin_challenge
@@ -93,10 +94,10 @@ class GeetestLib
     unless check_param(challenge, validate, seccode)
       @libResult.setAll(0, "", "正常模式，本地校验，参数challenge、validate、seccode不可为空")
     else
-      seccode = requestValidate(challenge, validate, seccode, paramHash)
-      if seccode.nil? || seccode.empty?
+      response_seccode = requestValidate(challenge, validate, seccode, paramHash)
+      if response_seccode.nil? || response_seccode.empty?
         @libResult.setAll(0, "", "请求极验validate接口失败")
-      elsif seccode == "false"
+      elsif response_seccode == "false"
         @libResult.setAll(0, "", "极验二次验证不通过")
       else
         @libResult.setAll(1, "", "")
@@ -128,14 +129,15 @@ class GeetestLib
     paramHash["captchaid"] = @geetest_id
     validate_url = API_URL + VALIDATE_URL
     uri = URI(validate_url)
-    gtlog("requestRegister(): 二次验证 正常模式, 向极验发送请求, url=#{validate_url}, paramHash=#{paramHash}.")
+    gtlog("requestValidate(): 二次验证 正常模式, 向极验发送请求, url=#{validate_url}, params=#{paramHash}.")
     begin
       res = Net::HTTP.post_form(uri, paramHash)
       res_body = res.body
-      gtlog("requestRegister(): 二次验证 正常模式, 请求正常, 返回码=#{res.code}, 返回body=#{res_body}.")
+      gtlog("requestValidate(): 二次验证 正常模式, 与极验网络交互正常, 返回码=#{res.code}, 返回body=#{res_body}.")
       res_hash = JSON.parse(res_body)
       seccode = res_hash["seccode"]
-    rescue
+    rescue => e
+      gtlog("requestValidate(): 二次验证 正常模式, 请求异常, " + e.message)
       seccode = ""
     end
     seccode
