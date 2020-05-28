@@ -51,6 +51,11 @@ sudo rails server -b 0.0.0.0 -p 3000
 在浏览器中访问`http://localhost:3000`即可看到demo界面。
 
 ## 发布日志
+
+### tag：20200528
+- 细节优化
+- 版本：ruby-rails:3.1.0
+
 ### tag：20200522
 - 统一各语言sdk标准
 - 版本：ruby-rails:3.1.0
