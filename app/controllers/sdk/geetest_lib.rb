@@ -32,7 +32,7 @@ class GeetestLib
   end
 
   # 一次验证
-  def register(paramHash, digestmod)
+  def register(digestmod, paramHash)
     gtlog("register(): 开始一次验证, digestmod=#{digestmod}.");
     origin_challenge = requestRegister(paramHash)
     buildRegisterResult(origin_challenge, digestmod)

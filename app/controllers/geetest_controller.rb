@@ -19,7 +19,7 @@ class GeetestController < ApplicationController
     paramHash["user_id"] = user_id # 网站用户id
     paramHash["client_type"] = "web" # web:电脑上的浏览器; h5:手机上的浏览器,包括移动应用内完全内置的web_view; native:通过原生SDK植入APP应用的方式
     paramHash["ip_address"] = "127.0.0.1" # 传输用户请求验证时所携带的IP
-    result = gt_lib.register(paramHash, digestmod)
+    result = gt_lib.register(digestmod, paramHash)
     # 将结果状态设置到session中
     # 注意，此处api1接口存入session，api2会取出使用，格外注意session的存取和分布式环境下的应用场景
     session[GeetestLib::GEETEST_SERVER_STATUS_SESSION_KEY] = result.getStatus
@@ -41,12 +41,12 @@ class GeetestController < ApplicationController
       render :json => {"result" => "fail", "msg" => "session取key发生异常"}
       return
     end
-    paramHash = Hash.new
-    # 自定义参数,可选择添加
-    paramHash["user_id"] = user_id # 网站用户id
-    paramHash["client_type"] = "web" # web:电脑上的浏览器; h5:手机上的浏览器,包括移动应用内完全内置的web_view; native:通过原生SDK植入APP应用的方式
-    paramHash["ip_address"] = "127.0.0.1" # 传输用户请求验证时所携带的IP
     if status == 1
+      paramHash = Hash.new
+      # 自定义参数,可选择添加
+      paramHash["user_id"] = user_id # 网站用户id
+      paramHash["client_type"] = "web" # web:电脑上的浏览器; h5:手机上的浏览器,包括移动应用内完全内置的web_view; native:通过原生SDK植入APP应用的方式
+      paramHash["ip_address"] = "127.0.0.1" # 传输用户请求验证时所携带的IP
       result = gt_lib.successValidate(challenge, validate, seccode, paramHash)
     else
       result = gt_lib.failValidate(challenge, validate, seccode)
