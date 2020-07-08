@@ -43,7 +43,7 @@ class GeetestLib
 
   # 向极验发送验证初始化的请求，GET方式
   def requestRegister(paramHash)
-    paramHash.merge!({"gt" => @geetest_id, "json_format" => JSON_FORMAT})
+    paramHash.merge!({"gt" => @geetest_id, "sdk" => VERSION, "json_format" => JSON_FORMAT})
     register_url = API_URL + REGISTER_URL
     gtlog("requestRegister(): 验证初始化, 向极验发送请求, url=#{register_url}, params=#{paramHash}.")
     begin
